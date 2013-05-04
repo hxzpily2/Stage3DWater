@@ -1,0 +1,209 @@
+[SWF] Converter.swf - 解压缩后为 1,480,538 个字节
+vertex code:
+mov vt0, va0
+m44 vt0, vt0, vc0
+mov vt1, vt0
+mov vt3, va1
+mov vt2, va2
+m44 vt0, vt2, vc0
+mov vt2, vt2
+mov vt3, vt3
+mov vt0, vt0
+mov op, vt1
+mov v0, vt2
+mov v1, vt3
+mov v2, vt0
+
+
+fragment code:
+mov ft0.y, v1.x
+mov ft0.x, v1.y
+mov ft2.y, ft0.y
+mov ft2.z, ft0.x
+mov ft0, ft2.yz
+tex ft1, ft0, fs1 <2d,nearest,repeat,mipnone>
+mul ft0.xy, ft2.yz, fc0.xy
+mov ft0, ft0.xy
+tex ft0, ft0, fs2 <2d,nearest,repeat,mipnone>
+mul ft1, ft1, fc1
+mov ft2.x, v0.z
+sub ft2.x, fc2.y, ft2.x
+max ft2.x, fc2.y, ft2.x
+mul ft2.x, ft2.x, fc2.x
+min ft2.x, fc8.y, ft2.x
+mov ft2.w, v0.z
+sub ft2.w, fc2.y, ft2.w
+max ft2.w, fc2.y, ft2.w
+mul ft2.w, ft2.w, fc8.y
+min ft2.w, fc8.y, ft2.w
+sub ft2.w, fc8.y, ft2.w
+mul ft2.x, ft2.x, ft2.w
+mul ft3.xy, ft2.yz, fc18.xy
+add ft3.xy, ft3.xy, fc14.xy
+mov ft3, ft3.xy
+tex ft3, ft3, fs0 <2d,nearest,repeat,mipnone>
+sub ft3, ft3, fc3
+mul ft4.xy, ft2.yz, fc19.zw
+add ft4.xy, ft4.xy, fc15.xy
+mov ft4, ft4.xy
+tex ft4, ft4, fs0 <2d,nearest,repeat,mipnone>
+sub ft4, ft4, fc3
+add ft3, ft3, ft4
+mul ft4.xy, ft2.yz, fc18.zw
+add ft4.xy, ft4.xy, fc14.zw
+mov ft4, ft4.xy
+tex ft4, ft4, fs0 <2d,nearest,repeat,mipnone>
+sub ft4, ft4, fc4
+add ft3, ft3, ft4
+mul ft4.xy, ft2.yz, fc19.xy
+add ft4.xy, ft4.xy, fc15.zw
+mov ft4, ft4.xy
+tex ft4, ft4, fs0 <2d,nearest,repeat,mipnone>
+sub ft4, ft4, fc4
+add ft3, ft3, ft4
+mul ft4.xy, ft2.yz, fc20.xy
+add ft4.xy, ft4.xy, fc16.xy
+mov ft4, ft4.xy
+tex ft4, ft4, fs0 <2d,nearest,repeat,mipnone>
+sub ft4, ft4, fc5
+mul ft4, ft4, fc6
+add ft3, ft3, ft4
+mul ft4.xy, ft2.yz, fc20.zw
+add ft4.xy, ft4.xy, fc16.zw
+mov ft4, ft4.xy
+tex ft4, ft4, fs0 <2d,nearest,repeat,mipnone>
+sub ft4, ft4, fc5
+mul ft4, ft4, fc6
+add ft3, ft3, ft4
+mul ft4.xy, ft2.yz, fc21.xy
+add ft4.xy, ft4.xy, fc17.xy
+mov ft4, ft4.xy
+tex ft4, ft4, fs0 <2d,nearest,repeat,mipnone>
+sub ft4, ft4, fc6
+mul ft4, ft4, fc6
+add ft3, ft3, ft4
+mul ft2.yz, ft2.yyz, fc21.zzw
+add ft2.yz, ft2.yyz, fc17.zzw
+mov ft4, ft2.yz
+tex ft4, ft4, fs0 <2d,nearest,repeat,mipnone>
+sub ft4, ft4, fc6
+mul ft4, ft4, fc6
+add ft3, ft3, ft4
+mul ft3, ft3, fc7
+mov ft2.y, v2.z
+mov ft2.z, fc13.z
+sub ft2.z, ft2.z, fc2.z
+sub ft2.z, fc2.y, ft2.z
+max ft2.z, fc2.y, ft2.z
+sub ft2.z, fc2.y, ft2.z
+mul ft2.z, ft2.z, fc0.w
+mov ft2.w, v2.z
+mul ft2.w, ft2.w, fc8.x
+sub ft2.z, ft2.z, ft2.w
+mov ft2.w, fc13.z
+add ft2.w, ft2.w, fc0.z
+sub ft2.w, fc2.y, ft2.w
+sge ft2.w, ft2.w, fc2.y
+sub ft2.w, ft2.z, ft2.w
+mov ft2.z, fc13.z
+add ft2.z, ft2.z, ft2.w
+max ft2.z, fc8.z, ft2.z
+mov ft4.x, v0.z
+add ft2.w, ft4.x, ft2.w
+min ft2.w, fc2.y, ft2.w
+sub ft2.w, ft2.z, ft2.w
+div ft2.z, ft2.z, ft2.w
+min ft2.z, fc8.y, ft2.z
+mul ft2.z, ft2.y, ft2.z
+sub ft2.y, ft2.y, ft2.z
+max ft2.y, fc2.y, ft2.y
+abs ft2.y, ft2.y
+mul ft2.y, ft2.y, fc8.w
+add ft2.y, ft2.y, fc8.y
+max ft2.y, fc2.y, ft2.y
+div ft2.y, fc8.y, ft2.y
+sub ft2.y, fc8.y, ft2.y
+mul ft2.y, ft2.y, fc13.w
+sub ft2.z, fc8.y, ft2.y
+mov ft4, fc9
+mov ft2.w, v2.z
+abs ft2.w, ft2.w
+mul ft2.w, ft2.w, fc8.w
+add ft2.w, ft2.w, fc8.y
+max ft2.w, fc2.y, ft2.w
+div ft2.w, fc8.y, ft2.w
+sub ft2.w, fc8.y, ft2.w
+sub ft5.x, fc8.y, ft2.w
+mul ft1, ft1, ft5.x
+mul ft0, ft0, ft2.w
+add ft0, ft1, ft0
+mul ft1, ft3, ft2.x
+add ft0, ft0, ft1
+mov ft1.x, v0.z
+mul ft1, fc10, ft1.x
+add ft0, ft0, ft1
+mov ft1.x, v0.y
+mul ft1, fc11, ft1.x
+add ft0, ft0, ft1
+mul ft0, ft0, ft2.z
+mul ft1, ft4, ft2.y
+add ft0, ft0, ft1
+mov ft1.x, v0.z
+sub ft1.x, fc2.y, ft1.x
+add ft1.x, ft1.x, fc12.x
+sub ft1.x, ft1.x, fc2.y
+sge ft1.x, ft1.x, fc2.y
+mov ft1.y, fc8.y
+sub ft1.y, ft1.y, fc13.w
+mul ft1.x, ft1.x, ft1.y
+sub ft1.x, fc8.y, ft1.x
+mov ft0, ft0
+mov ft0.w, ft1.x
+mov ft0, ft0
+mov oc, ft0
+
+
+vertex register:
+va0 : float4 : vertexPosition
+va1 : float4 : UVCoord
+va2 : float4 : vertexPosition0
+
+vc0 : objectToClipSpaceTransform : float4x4
+
+fragment register:
+tex0 : image4 : causticMap
+tex1 : image4 : inputImage
+tex2 : image4 : textureDist
+
+fc0 : ( 0.1, 0.1, 0.02, 0.8 )
+fc1 : ( 1.15, 1.15, 1.15, 1.15 )
+fc2 : ( 12, 0, 0.03, 0 )
+fc3 : ( 0.3, 0.3, 0.3, 0.3 )
+fc4 : ( 0.45, 0.45, 0.45, 0.45 )
+fc5 : ( 0.55, 0.55, 0.55, 0.55 )
+fc6 : ( 0.5, 0.5, 0.5, 0.5 )
+fc7 : ( 0.12, 0.12, 0.12, 1 )
+fc8 : ( 0.001, 1, 0.002, 0.5 )
+fc9 : ( 0.1, 0.62, 0.6, 1 )
+fc10 : ( 0.00001, 0.00001, 0.00001, 0.00001 )
+fc11 : ( 0, 0, 0, 0 )
+fc12 : aboveSurfaceOffset : float1
+fc13 : camPosition : float3
+fc13 : aboveSurfaceOnly : float1
+fc14 : waveOffset1 : float2
+fc14 : waveOffset1b : float2
+fc15 : waveOffset2 : float2
+fc15 : waveOffset2b : float2
+fc16 : waveOffset3 : float2
+fc16 : waveOffset4 : float2
+fc17 : waveOffset5 : float2
+fc17 : waveOffset6 : float2
+fc18 : waveScale1 : float2
+fc18 : waveScale1b : float2
+fc19 : waveScale2b : float2
+fc19 : waveScale2 : float2
+fc20 : waveScale3 : float2
+fc20 : waveScale4 : float2
+fc21 : waveScale5 : float2
+fc21 : waveScale6 : float2
+

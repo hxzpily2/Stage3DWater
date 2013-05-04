@@ -1,0 +1,131 @@
+module_material_vertex_program simpleImageSampling
+
+    metadata
+        namespace const(string, "AIF Test")
+        vendor const(string, "Adobe")
+        version const(int, 1)
+    end_metadata
+    
+    transformations
+        SCF INTOSSA OPT(DCE* {APR DCE*}*)
+    end_transformations
+    
+    globals
+        global parameter float-3 camPosition
+        global parameter float edgeAlphaMultiplier
+        global parameter float edgeRefractDistMultiplier
+        global parameter float edgeRefractMultiplier
+        global parameter float fresnelPow
+        input image image-4 inputImage
+        global parameter float-4-4 invObjectToClipSpaceTransform
+        global parameter float normalPerturbation
+        global parameter float-3 normalVector
+        global parameter float-4-4 objectToClipSpaceTransform
+            metadata
+                id const(string, "PB3D_CLIP_TRANSFORM")
+            end_metadata
+        global parameter float one
+        input image image-4 reflectionMap
+        global parameter float reflectionPerturbationAmount
+        global parameter float reflectionYOffset
+        input image image-4 refractionMap
+        global parameter float refractionPerturbationAmount
+        global parameter float underwater
+        global parameter float-2 waveOffset1
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset2
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset3
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset4
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset5
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset6
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveScale1
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale2
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale3
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale4
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale5
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale6
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float zero
+        input vertex float-4 UVCoord
+        input vertex float-4 vertexPosition
+            metadata
+                id const(string, "PB3D_POSITION")
+            end_metadata
+        interpolated float-4 interpolatedCoord
+            metadata
+                id const(string, "_0_interpolatedCoord")
+            end_metadata
+        interpolated float-4 refractReflectCoord
+            metadata
+                id const(string, "_1_refractReflectCoord")
+            end_metadata
+        interpolated float-4 vertexPosition3D
+            metadata
+                id const(string, "_2_vertexPosition3D")
+            end_metadata
+        interpolated float-4 vertexViewPosition3D
+            metadata
+                id const(string, "_3_vertexViewPosition3D")
+            end_metadata
+    end_globals
+    
+    functions
+        external_function void evaluateVertex()
+            body
+                basic_block entry%A !! outlets(basic%A)
+                    jump block(basic%A) : void
+                end_basic_block
+                basic_block basic%A !! inlets(entry%A) outlets(exit%A)
+                    _LD_interpolatedCoord-1 = assign UVCoord : float-4
+                    _LD_vertexPosition3D-1 = assign vertexPosition : float-4
+                    _LD_vertexViewPosition3D-1 = mul vertexPosition, objectToClipSpaceTransform : float-4
+                    _LD_refractReflectCoord-1 = mul vertexPosition, objectToClipSpaceTransform : float-4
+                    jump block(exit%A) : void
+                end_basic_block
+                basic_block exit%A !! inlets(basic%A)
+                    moveToNonSSA _LD_interpolatedCoord-1, interpolatedCoord : void
+                    moveToNonSSA _LD_refractReflectCoord-1, refractReflectCoord : void
+                    moveToNonSSA _LD_vertexPosition3D-1, vertexPosition3D : void
+                    moveToNonSSA _LD_vertexViewPosition3D-1, vertexViewPosition3D : void
+                    ret : void
+                end_basic_block
+            end_body
+        end_external_function
+    end_functions
+    
+end_module_material_vertex_program
+

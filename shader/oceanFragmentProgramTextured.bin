@@ -1,0 +1,279 @@
+module_fragment_program simpleImageSampling
+
+    metadata
+        namespace const(string, "AIF Test")
+        vendor const(string, "Adobe")
+        version const(int, 1)
+    end_metadata
+    
+    transformations
+        SCF INTOSSA OPT(DCE* {APR DCE*}*)
+    end_transformations
+    
+    globals
+        global parameter float-3 camPosition
+        global parameter float edgeAlphaMultiplier
+        global parameter float edgeRefractDistMultiplier
+        global parameter float edgeRefractMultiplier
+        global parameter float fresnelPow
+        input image image-4 inputImage
+        global parameter float-4-4 invObjectToClipSpaceTransform
+        global parameter float normalPerturbation
+        global parameter float-3 normalVector
+        global parameter float-4-4 objectToClipSpaceTransform
+            metadata
+                id const(string, "PB3D_CLIP_TRANSFORM")
+            end_metadata
+        global parameter float one
+        input image image-4 reflectionMap
+        global parameter float reflectionPerturbationAmount
+        global parameter float reflectionYOffset
+        input image image-4 refractionMap
+        global parameter float refractionPerturbationAmount
+        global parameter float underwater
+        global parameter float-2 waveOffset1
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset2
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset3
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset4
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset5
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset6
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveScale1
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale2
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale3
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale4
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale5
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale6
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float zero
+        input vertex float-4 UVCoord
+        input vertex float-4 vertexPosition
+            metadata
+                id const(string, "PB3D_POSITION")
+            end_metadata
+        interpolated float-4 interpolatedCoord
+            metadata
+                id const(string, "_0_interpolatedCoord")
+            end_metadata
+        interpolated float-4 refractReflectCoord
+            metadata
+                id const(string, "_1_refractReflectCoord")
+            end_metadata
+        interpolated float-4 vertexPosition3D
+            metadata
+                id const(string, "_2_vertexPosition3D")
+            end_metadata
+        interpolated float-4 vertexViewPosition3D
+            metadata
+                id const(string, "_3_vertexViewPosition3D")
+            end_metadata
+        output fragment float-4 result
+    end_globals
+    
+    functions
+        external_function void evaluateFragment()
+            body
+                basic_block entry%A !! outlets(basic%A)
+                    coord-0 = allocNonSSA type(float-2) : float-2
+                    newRefractReflectCoord-0 = allocNonSSA type(float-4) : float-4
+                    bump1-0 = allocNonSSA type(float-4) : float-4
+                    bump2-0 = allocNonSSA type(float-4) : float-4
+                    bump3-0 = allocNonSSA type(float-4) : float-4
+                    bump4-0 = allocNonSSA type(float-4) : float-4
+                    bump5-0 = allocNonSSA type(float-4) : float-4
+                    bump6-0 = allocNonSSA type(float-4) : float-4
+                    bump-0 = allocNonSSA type(float-4) : float-4
+                    bumpZMultiplier-0 = allocNonSSA type(float) : float
+                    reflectionUVCoord-0 = allocNonSSA type(float-2) : float-2
+                    edgeRefract-0 = allocNonSSA type(float) : float
+                    perturbedReflectionUVCoord-0 = allocNonSSA type(float-2) : float-2
+                    reflectionColor-0 = allocNonSSA type(float-4) : float-4
+                    refractionUVCoord-0 = allocNonSSA type(float-2) : float-2
+                    bumpOffset-0 = allocNonSSA type(float-2) : float-2
+                    perturbedRefractionUVCoordG-0 = allocNonSSA type(float-2) : float-2
+                    perturbedRefractionUVCoordR-0 = allocNonSSA type(float-2) : float-2
+                    perturbedRefractionUVCoordB-0 = allocNonSSA type(float-2) : float-2
+                    refractionColor-0 = allocNonSSA type(float-4) : float-4
+                    perturbedNormalVector-0 = allocNonSSA type(float-3) : float-3
+                    vertexPosition3Dpoint-0 = allocNonSSA type(float-3) : float-3
+                    eyeVector-0 = allocNonSSA type(float-3) : float-3
+                    fresnelTerm-0 = allocNonSSA type(float) : float
+                    jump block(basic%A) : void
+                end_basic_block
+                basic_block basic%A !! inlets(entry%A) outlets(exit%A)
+                    interpolatedCoordElem%A-0 = extractVE interpolatedCoord, const(int, 0) : float
+                    interpolatedCoordElem%B-0 = extractVE interpolatedCoord, const(int, 1) : float
+                    _LD_coord-1 = makeFloatVector interpolatedCoordElem%A-0, interpolatedCoordElem%B-0 : float-2
+                    refractReflectCoordElem%A-0 = extractVE refractReflectCoord, const(int, 0) : float
+                    refractReflectCoordElem%B-0 = extractVE refractReflectCoord, const(int, 3) : float
+                    _divResult%A-0 = div refractReflectCoordElem%A-0, refractReflectCoordElem%B-0 : float
+                    _divResult%B-0 = div _divResult%A-0, const(float, 2) : float
+                    refractReflectCoordElem%C-0 = extractVE refractReflectCoord, const(int, 1) : float
+                    refractReflectCoordElem%D-0 = extractVE refractReflectCoord, const(int, 3) : float
+                    _divResult%C-0 = div refractReflectCoordElem%C-0, refractReflectCoordElem%D-0 : float
+                    _divResult%D-0 = div _divResult%C-0, const(float, 2) : float
+                    _LD_newRefractReflectCoord-1 = makeFloatVector _divResult%B-0, _divResult%D-0, const(float, 0), const(float, 0) : float-4
+                    _mulResult%A-0 = mul _LD_coord-1, waveScale1 : float-2
+                    _addResult%A-0 = add _mulResult%A-0, waveOffset1 : float-2
+                    _LD_bump1-1 = sample inputImage, _addResult%A-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _mulResult%B-0 = mul _LD_coord-1, waveScale2 : float-2
+                    _addResult%B-0 = add _mulResult%B-0, waveOffset2 : float-2
+                    _LD_bump2-1 = sample inputImage, _addResult%B-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _mulResult%C-0 = mul _LD_coord-1, waveScale3 : float-2
+                    _addResult%C-0 = add _mulResult%C-0, waveOffset3 : float-2
+                    _LD_bump3-1 = sample inputImage, _addResult%C-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _mulResult%D-0 = mul _LD_coord-1, waveScale4 : float-2
+                    _addResult%D-0 = add _mulResult%D-0, waveOffset4 : float-2
+                    _LD_bump4-1 = sample inputImage, _addResult%D-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _mulResult%E-0 = mul _LD_coord-1, waveScale5 : float-2
+                    _addResult%E-0 = add _mulResult%E-0, waveOffset5 : float-2
+                    _LD_bump5-1 = sample inputImage, _addResult%E-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _mulResult%F-0 = mul _LD_coord-1, waveScale6 : float-2
+                    _addResult%F-0 = add _mulResult%F-0, waveOffset6 : float-2
+                    _LD_bump6-1 = sample inputImage, _addResult%F-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _addResult%G-0 = add _LD_bump1-1, _LD_bump2-1 : float-4
+                    _addResult%H-0 = add _addResult%G-0, _LD_bump3-1 : float-4
+                    _addResult%I-0 = add _addResult%H-0, _LD_bump4-1 : float-4
+                    _addResult%J-0 = add _addResult%I-0, _LD_bump5-1 : float-4
+                    _addResult%BA-0 = add _addResult%J-0, _LD_bump6-1 : float-4
+                    _mulResult%G-0 = mul _addResult%BA-0, const(float, 0.1666) : float-4
+                    _LD_bump-1 = sub _mulResult%G-0, const(float, 0.5) : float-4
+                    refractReflectCoordElem%E-0 = extractVE refractReflectCoord, const(int, 3) : float
+                    _addResult%BB-0 = add const(float, 1), refractReflectCoordElem%E-0 : float
+                    _divResult%E-0 = div const(float, 1), _addResult%BB-0 : float
+                    _LD_bumpZMultiplier-1 = sub const(float, 1), _divResult%E-0 : float
+                    _LD_bumpZMultiplier-2 = mul _LD_bumpZMultiplier-1, _LD_bumpZMultiplier-1 : float
+                    _mulResult%I-0 = mul _LD_bumpZMultiplier-2, const(float, 4) : float
+                    _addResult%BC-0 = add const(float, 1), _mulResult%I-0 : float
+                    _LD_bump-2 = div _LD_bump-1, _addResult%BC-0 : float-4
+                    _LD_newRefractReflectCoordElem%A-0 = extractVE _LD_newRefractReflectCoord-1, const(int, 0) : float
+                    _addResult%BD-0 = add _LD_newRefractReflectCoordElem%A-0, const(float, 0.5) : float
+                    _LD_newRefractReflectCoordElem%B-0 = extractVE _LD_newRefractReflectCoord-1, const(int, 1) : float
+                    _addResult%BE-0 = add _LD_newRefractReflectCoordElem%B-0, const(float, 0.5) : float
+                    _addResult%BF-0 = add _addResult%BE-0, reflectionYOffset : float
+                    _LD_reflectionUVCoord-1 = makeFloatVector _addResult%BD-0, _addResult%BF-0 : float-2
+                    vertexViewPosition3DElem%A-0 = extractVE vertexViewPosition3D, const(int, 2) : float
+                    _subResult%C-0 = sub vertexViewPosition3DElem%A-0, const(float, 0.005) : float
+                    camPositionElem%A-0 = extractVE camPosition, const(int, 2) : float
+                    _absResult%A-0 = abs camPositionElem%A-0 : float
+                    _divResult%G-0 = div _absResult%A-0, const(float, 0.1) : float
+                    _maxResult%A-0 = max const(float, 0.1), _divResult%G-0 : float
+                    _mulResult%J-0 = mul _subResult%C-0, _maxResult%A-0 : float
+                    _mulResult%BA-0 = mul _mulResult%J-0, edgeRefractDistMultiplier : float
+                    _minResult%A-0 = min const(float, 1), _mulResult%BA-0 : float
+                    _LD_edgeRefract-1 = sub const(float, 1), _minResult%A-0 : float
+                    _mulResult%BB-0 = mul _LD_edgeRefract-1, _LD_edgeRefract-1 : float
+                    _LD_edgeRefract-2 = mul _LD_edgeRefract-1, _mulResult%BB-0 : float
+                    _LD_bumpElem%A-0 = extractVE _LD_bump-2, const(int, 0) : float
+                    _LD_bumpElem%B-0 = extractVE _LD_bump-2, const(int, 1) : float
+                    _mulResult%BD-0 = mul _LD_edgeRefract-2, edgeRefractMultiplier : float
+                    _addResult%BG-0 = add _LD_bumpElem%B-0, _mulResult%BD-0 : float
+                    _anonVec%D-0 = makeFloatVector _LD_bumpElem%A-0, _addResult%BG-0 : float-2
+                    _subResult%E-0 = sub _anonVec%D-0, const(float-2, (0, 0)) : float-2
+                    _mulResult%BE-0 = mul _subResult%E-0, reflectionPerturbationAmount : float-2
+                    _LD_perturbedReflectionUVCoord-1 = add _LD_reflectionUVCoord-1, _mulResult%BE-0 : float-2
+                    _LD_reflectionColor-1 = sample reflectionMap, _LD_perturbedReflectionUVCoord-1, const(_sample_option, nearest mipdisable clamp 2D ) : float-4
+                    _LD_newRefractReflectCoordElem%C-0 = extractVE _LD_newRefractReflectCoord-1, const(int, 0) : float
+                    _addResult%BI-0 = add _LD_newRefractReflectCoordElem%C-0, const(float, 0.5) : float
+                    _LD_newRefractReflectCoordElem%D-0 = extractVE _LD_newRefractReflectCoord-1, const(int, 1) : float
+                    _negResult%A-0 = neg _LD_newRefractReflectCoordElem%D-0 : float
+                    _addResult%BJ-0 = add _negResult%A-0, const(float, 0.5) : float
+                    _LD_refractionUVCoord-1 = makeFloatVector _addResult%BI-0, _addResult%BJ-0 : float-2
+                    _LD_bumpElem%C-0 = extractVE _LD_bump-2, const(int, 0) : float
+                    _LD_bumpElem%D-0 = extractVE _LD_bump-2, const(int, 1) : float
+                    _anonVec%F-0 = makeFloatVector _LD_bumpElem%C-0, _LD_bumpElem%D-0 : float-2
+                    _mulResult%BF-0 = mul _LD_edgeRefract-2, edgeRefractMultiplier : float
+                    _anonVec%G-0 = makeFloatVector const(float, 0), _mulResult%BF-0 : float-2
+                    _LD_bumpOffset-1 = add _anonVec%F-0, _anonVec%G-0 : float-2
+                    _anonVec%H-0 = makeFloatVector refractionPerturbationAmount, refractionPerturbationAmount : float-2
+                    _mulResult%BG-0 = mul _LD_bumpOffset-1, _anonVec%H-0 : float-2
+                    _LD_perturbedRefractionUVCoordG-1 = add _LD_refractionUVCoord-1, _mulResult%BG-0 : float-2
+                    _anonVec%I-0 = makeFloatVector refractionPerturbationAmount, refractionPerturbationAmount : float-2
+                    _addResult%CC-0 = add _anonVec%I-0, const(float-2, (0.0125, 0.0125)) : float-2
+                    _mulResult%BH-0 = mul _LD_bumpOffset-1, _addResult%CC-0 : float-2
+                    _LD_perturbedRefractionUVCoordR-1 = add _LD_refractionUVCoord-1, _mulResult%BH-0 : float-2
+                    _sampleResult%H-0 = sample refractionMap, _LD_perturbedRefractionUVCoordR-1, const(_sample_option, nearest mipdisable clamp 2D ) : float-4
+                    _sampleResult%HElem%A-0 = extractVE _sampleResult%H-0, const(int, 0) : float
+                    _sampleResult%I-0 = sample refractionMap, _LD_perturbedRefractionUVCoordG-1, const(_sample_option, nearest mipdisable clamp 2D ) : float-4
+                    _sampleResult%IElem%A-0 = extractVE _sampleResult%I-0, const(int, 1) : float
+                    _sampleResult%J-0 = sample refractionMap, _LD_perturbedRefractionUVCoordR-1, const(_sample_option, nearest mipdisable clamp 2D ) : float-4
+                    _sampleResult%JElem%A-0 = extractVE _sampleResult%J-0, const(int, 2) : float
+                    _LD_refractionColor-1 = makeFloatVector _sampleResult%HElem%A-0, _sampleResult%IElem%A-0, _sampleResult%JElem%A-0, const(float, 1) : float-4
+                    _LD_bumpElem%E-0 = extractVE _LD_bump-2, const(int, 0) : float
+                    _LD_bumpElem%F-0 = extractVE _LD_bump-2, const(int, 1) : float
+                    _anonVec%BB-0 = makeFloatVector _LD_bumpElem%E-0, _LD_bumpElem%F-0, const(float, 0) : float-3
+                    _mulResult%BJ-0 = mul _anonVec%BB-0, normalPerturbation : float-3
+                    _LD_perturbedNormalVector-1 = add normalVector, _mulResult%BJ-0 : float-3
+                    vertexPosition3DElem%A-0 = extractVE vertexPosition3D, const(int, 0) : float
+                    vertexPosition3DElem%B-0 = extractVE vertexPosition3D, const(int, 1) : float
+                    vertexPosition3DElem%C-0 = extractVE vertexPosition3D, const(int, 2) : float
+                    _LD_vertexPosition3Dpoint-1 = makeFloatVector vertexPosition3DElem%A-0, vertexPosition3DElem%B-0, vertexPosition3DElem%C-0 : float-3
+                    _subResult%F-0 = sub camPosition, _LD_vertexPosition3Dpoint-1 : float-3
+                    _LD_eyeVector-1 = normalize _subResult%F-0 : float-3
+                    _dotResult%A-0 = dot _LD_eyeVector-1, _LD_perturbedNormalVector-1 : float
+                    _subResult%G-0 = sub const(float, 1), _dotResult%A-0 : float
+                    _powResult%A-0 = pow _subResult%G-0, fresnelPow : float
+                    _minResult%B-0 = min const(float, 1), _powResult%A-0 : float
+                    _LD_fresnelTerm-1 = sub const(float, 1), _minResult%B-0 : float
+                    _subResult%I-0 = sub _LD_bump-2, const(float, 0.45) : float-4
+                    _mulResult%CA-0 = mul _subResult%I-0, const(float, 0.15) : float-4
+                    _LD_result-1 = add _LD_refractionColor-1, _mulResult%CA-0 : float-4
+                    _mulResult%CB-0 = mul _LD_result-1, _LD_fresnelTerm-1 : float-4
+                    _subResult%J-0 = sub const(float, 1), _LD_fresnelTerm-1 : float
+                    _mulResult%CC-0 = mul _LD_reflectionColor-1, _subResult%J-0 : float-4
+                    _LD_result-2 = add _mulResult%CB-0, _mulResult%CC-0 : float-4
+                    _LD_bumpElem%G-0 = extractVE _LD_bump-2, const(int, 0) : float
+                    _subResult%BA-0 = sub _LD_bumpElem%G-0, const(float, 0.03) : float
+                    _maxResult%B-0 = max const(float, 0), _subResult%BA-0 : float
+                    _mulResult%CD-0 = mul _maxResult%B-0, const(float, 15) : float
+                    _subResult%BB-0 = sub const(float, 1), underwater : float
+                    _mulResult%CE-0 = mul _mulResult%CD-0, _subResult%BB-0 : float
+                    _LD_result-3 = add _LD_result-2, _mulResult%CE-0 : float-4
+                    _subResult%BC-0 = sub const(float, 1), _LD_edgeRefract-2 : float
+                    _LD_result-4 = insertVE _subResult%BC-0, _LD_result-3, const(int, 3) : float-4
+                    jump block(exit%A) : void
+                end_basic_block
+                basic_block exit%A !! inlets(basic%A)
+                    moveToNonSSA _LD_result-4, result : void
+                    ret : void
+                end_basic_block
+            end_body
+        end_external_function
+    end_functions
+    
+end_module_fragment_program
+

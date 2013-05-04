@@ -1,0 +1,274 @@
+module_fragment_program simpleImageSampling
+
+    metadata
+        namespace const(string, "AIF Test")
+        vendor const(string, "Adobe")
+        version const(int, 1)
+    end_metadata
+    
+    transformations
+        SCF INTOSSA OPT(DCE* {APR DCE*}*)
+    end_transformations
+    
+    globals
+        global parameter float aboveSurfaceOffset
+        global parameter float aboveSurfaceOnly
+        global parameter float-3 camPosition
+        input image image-4 causticMap
+        input image image-4 inputImage
+        global parameter float-4-4 objectToClipSpaceTransform
+            metadata
+                id const(string, "PB3D_CLIP_TRANSFORM")
+            end_metadata
+        global parameter float one
+        input image image-4 textureDist
+        global parameter float underwaterMarginOffset
+        global parameter float-2 waveOffset1
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset1b
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset2
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset2b
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset3
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset4
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset5
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveOffset6
+            metadata
+                defaultValue const(float-2, (0, 0))
+            end_metadata
+        global parameter float-2 waveScale1
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale1b
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale2
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale2b
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale3
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale4
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale5
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float-2 waveScale6
+            metadata
+                defaultValue const(float-2, (1, 1))
+            end_metadata
+        global parameter float zero
+        input vertex float-4 UVCoord
+        input vertex float-4 vertexPosition
+            metadata
+                id const(string, "PB3D_POSITION")
+            end_metadata
+        interpolated float-4 depthCoord
+            metadata
+                id const(string, "_2_depthCoord")
+            end_metadata
+        interpolated float-4 interpolatedCoord
+            metadata
+                id const(string, "_0_interpolatedCoord")
+            end_metadata
+        interpolated float-4 screenCoord
+            metadata
+                id const(string, "_1_screenCoord")
+            end_metadata
+        output fragment float-4 result
+    end_globals
+    
+    functions
+        external_function void evaluateFragment()
+            body
+                basic_block entry%A !! outlets(basic%A)
+                    coord-0 = allocNonSSA type(float-2) : float-2
+                    textureColour-0 = allocNonSSA type(float-4) : float-4
+                    textureDistColour-0 = allocNonSSA type(float-4) : float-4
+                    causticBlend-0 = allocNonSSA type(float) : float
+                    causticBlend2-0 = allocNonSSA type(float) : float
+                    causticColour-0 = allocNonSSA type(float-4) : float-4
+                    depthDist-0 = allocNonSSA type(float) : float
+                    depthOffset-0 = allocNonSSA type(float) : float
+                    camPosZ-0 = allocNonSSA type(float) : float
+                    aboveOceanSubMultiplier-0 = allocNonSSA type(float) : float
+                    depthBlend-0 = allocNonSSA type(float) : float
+                    invDepthBlend-0 = allocNonSSA type(float) : float
+                    depthColour-0 = allocNonSSA type(float-4) : float-4
+                    distBlend-0 = allocNonSSA type(float) : float
+                    invDistBlend-0 = allocNonSSA type(float) : float
+                    blendedTextureColour-0 = allocNonSSA type(float-4) : float-4
+                    colour-0 = allocNonSSA type(float-4) : float-4
+                    jump block(basic%A) : void
+                end_basic_block
+                basic_block basic%A !! inlets(entry%A) outlets(exit%A)
+                    interpolatedCoordElem%A-0 = extractVE interpolatedCoord, const(int, 0) : float
+                    interpolatedCoordElem%B-0 = extractVE interpolatedCoord, const(int, 1) : float
+                    _LD_coord-1 = makeFloatVector interpolatedCoordElem%A-0, interpolatedCoordElem%B-0 : float-2
+                    _LD_textureColour-1 = sample inputImage, _LD_coord-1, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _mulResult%A-0 = mul _LD_coord-1, const(float-2, (0.1, 0.1)) : float-2
+                    _LD_textureDistColour-1 = sample textureDist, _mulResult%A-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _LD_textureColour-2 = mul _LD_textureColour-1, const(float-4, (1.15, 1.15, 1.15, 1.15)) : float-4
+                    depthCoordElem%A-0 = extractVE depthCoord, const(int, 2) : float
+                    _negResult%A-0 = neg depthCoordElem%A-0 : float
+                    _maxResult%A-0 = max const(float, 0), _negResult%A-0 : float
+                    _mulResult%C-0 = mul _maxResult%A-0, const(float, 12) : float
+                    _LD_causticBlend-1 = min const(float, 1), _mulResult%C-0 : float
+                    depthCoordElem%B-0 = extractVE depthCoord, const(int, 2) : float
+                    _negResult%B-0 = neg depthCoordElem%B-0 : float
+                    _maxResult%B-0 = max const(float, 0), _negResult%B-0 : float
+                    _mulResult%D-0 = mul _maxResult%B-0, const(float, 1) : float
+                    _minResult%B-0 = min const(float, 1), _mulResult%D-0 : float
+                    _LD_causticBlend2-1 = sub const(float, 1), _minResult%B-0 : float
+                    _LD_causticBlend-2 = mul _LD_causticBlend-1, _LD_causticBlend2-1 : float
+                    _mulResult%F-0 = mul _LD_coord-1, waveScale1 : float-2
+                    _addResult%A-0 = add _mulResult%F-0, waveOffset1 : float-2
+                    _sampleResult%C-0 = sample causticMap, _addResult%A-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _LD_causticColour-1 = sub _sampleResult%C-0, const(float-4, (0.3, 0.3, 0.3, 0.3)) : float-4
+                    _mulResult%G-0 = mul _LD_coord-1, waveScale2 : float-2
+                    _addResult%B-0 = add _mulResult%G-0, waveOffset2 : float-2
+                    _sampleResult%D-0 = sample causticMap, _addResult%B-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _subResult%C-0 = sub _sampleResult%D-0, const(float-4, (0.3, 0.3, 0.3, 0.3)) : float-4
+                    _LD_causticColour-2 = add _LD_causticColour-1, _subResult%C-0 : float-4
+                    _mulResult%H-0 = mul _LD_coord-1, waveScale1b : float-2
+                    _addResult%D-0 = add _mulResult%H-0, waveOffset1b : float-2
+                    _sampleResult%E-0 = sample causticMap, _addResult%D-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _subResult%D-0 = sub _sampleResult%E-0, const(float-4, (0.45, 0.45, 0.45, 0.45)) : float-4
+                    _LD_causticColour-3 = add _LD_causticColour-2, _subResult%D-0 : float-4
+                    _mulResult%I-0 = mul _LD_coord-1, waveScale2b : float-2
+                    _addResult%F-0 = add _mulResult%I-0, waveOffset2b : float-2
+                    _sampleResult%F-0 = sample causticMap, _addResult%F-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _subResult%E-0 = sub _sampleResult%F-0, const(float-4, (0.45, 0.45, 0.45, 0.45)) : float-4
+                    _LD_causticColour-4 = add _LD_causticColour-3, _subResult%E-0 : float-4
+                    _mulResult%J-0 = mul _LD_coord-1, waveScale3 : float-2
+                    _addResult%H-0 = add _mulResult%J-0, waveOffset3 : float-2
+                    _sampleResult%G-0 = sample causticMap, _addResult%H-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _subResult%F-0 = sub _sampleResult%G-0, const(float-4, (0.55, 0.55, 0.55, 0.55)) : float-4
+                    _mulResult%BA-0 = mul _subResult%F-0, const(float-4, (0.5, 0.5, 0.5, 0.5)) : float-4
+                    _LD_causticColour-5 = add _LD_causticColour-4, _mulResult%BA-0 : float-4
+                    _mulResult%BB-0 = mul _LD_coord-1, waveScale4 : float-2
+                    _addResult%J-0 = add _mulResult%BB-0, waveOffset4 : float-2
+                    _sampleResult%H-0 = sample causticMap, _addResult%J-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _subResult%G-0 = sub _sampleResult%H-0, const(float-4, (0.55, 0.55, 0.55, 0.55)) : float-4
+                    _mulResult%BC-0 = mul _subResult%G-0, const(float-4, (0.5, 0.5, 0.5, 0.5)) : float-4
+                    _LD_causticColour-6 = add _LD_causticColour-5, _mulResult%BC-0 : float-4
+                    _mulResult%BD-0 = mul _LD_coord-1, waveScale5 : float-2
+                    _addResult%BB-0 = add _mulResult%BD-0, waveOffset5 : float-2
+                    _sampleResult%I-0 = sample causticMap, _addResult%BB-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _subResult%H-0 = sub _sampleResult%I-0, const(float-4, (0.5, 0.5, 0.5, 0.5)) : float-4
+                    _mulResult%BE-0 = mul _subResult%H-0, const(float-4, (0.5, 0.5, 0.5, 0.5)) : float-4
+                    _LD_causticColour-7 = add _LD_causticColour-6, _mulResult%BE-0 : float-4
+                    _mulResult%BF-0 = mul _LD_coord-1, waveScale6 : float-2
+                    _addResult%BD-0 = add _mulResult%BF-0, waveOffset6 : float-2
+                    _sampleResult%J-0 = sample causticMap, _addResult%BD-0, const(_sample_option, nearest mipdisable repeat 2D ) : float-4
+                    _subResult%I-0 = sub _sampleResult%J-0, const(float-4, (0.5, 0.5, 0.5, 0.5)) : float-4
+                    _mulResult%BG-0 = mul _subResult%I-0, const(float-4, (0.5, 0.5, 0.5, 0.5)) : float-4
+                    _LD_causticColour-8 = add _LD_causticColour-7, _mulResult%BG-0 : float-4
+                    _LD_causticColour-9 = mul _LD_causticColour-8, const(float-4, (0.12, 0.12, 0.12, 1)) : float-4
+                    _LD_depthDist-1 = extractVE screenCoord, const(int, 2) : float
+                    camPositionElem%A-0 = extractVE camPosition, const(int, 2) : float
+                    _subResult%J-0 = sub camPositionElem%A-0, const(float, 0.03) : float
+                    _negResult%C-0 = neg _subResult%J-0 : float
+                    _maxResult%C-0 = max const(float, 0), _negResult%C-0 : float
+                    _negResult%D-0 = neg _maxResult%C-0 : float
+                    _mulResult%BI-0 = mul _negResult%D-0, const(float, 0.8) : float
+                    screenCoordElem%B-0 = extractVE screenCoord, const(int, 2) : float
+                    _mulResult%BJ-0 = mul screenCoordElem%B-0, const(float, 0.001) : float
+                    _subResult%BA-0 = sub _mulResult%BI-0, _mulResult%BJ-0 : float
+                    camPositionElem%B-0 = extractVE camPosition, const(int, 2) : float
+                    _addResult%BF-0 = add camPositionElem%B-0, const(float, 0.02) : float
+                    _stepResult%A-0 = step _addResult%BF-0, const(float, 0) : float
+                    _LD_depthOffset-1 = sub _subResult%BA-0, _stepResult%A-0 : float
+                    camPositionElem%C-0 = extractVE camPosition, const(int, 2) : float
+                    _addResult%BG-0 = add camPositionElem%C-0, _LD_depthOffset-1 : float
+                    _LD_camPosZ-1 = max const(float, 0.002), _addResult%BG-0 : float
+                    depthCoordElem%C-0 = extractVE depthCoord, const(int, 2) : float
+                    _addResult%BH-0 = add depthCoordElem%C-0, _LD_depthOffset-1 : float
+                    _minResult%C-0 = min const(float, 0), _addResult%BH-0 : float
+                    _subResult%BC-0 = sub _LD_camPosZ-1, _minResult%C-0 : float
+                    _divResult%A-0 = div _LD_camPosZ-1, _subResult%BC-0 : float
+                    _LD_aboveOceanSubMultiplier-1 = min const(float, 1), _divResult%A-0 : float
+                    _mulResult%CA-0 = mul _LD_depthDist-1, _LD_aboveOceanSubMultiplier-1 : float
+                    _subResult%BD-0 = sub _LD_depthDist-1, _mulResult%CA-0 : float
+                    _LD_depthDist-2 = max const(float, 0), _subResult%BD-0 : float
+                    _absResult%A-0 = abs _LD_depthDist-2 : float
+                    _mulResult%CB-0 = mul _absResult%A-0, const(float, 0.5) : float
+                    _addResult%BI-0 = add _mulResult%CB-0, const(float, 1) : float
+                    _maxResult%F-0 = max const(float, 0), _addResult%BI-0 : float
+                    _divResult%B-0 = div const(float, 1), _maxResult%F-0 : float
+                    _LD_depthBlend-1 = sub const(float, 1), _divResult%B-0 : float
+                    _LD_depthBlend-2 = mul _LD_depthBlend-1, aboveSurfaceOnly : float
+                    _LD_invDepthBlend-1 = sub const(float, 1), _LD_depthBlend-2 : float
+                    _LD_depthColour-1 = assign const(float-4, (0.1, 0.62, 0.6, 1)) : float-4
+                    screenCoordElem%C-0 = extractVE screenCoord, const(int, 2) : float
+                    _absResult%B-0 = abs screenCoordElem%C-0 : float
+                    _mulResult%CD-0 = mul _absResult%B-0, const(float, 0.5) : float
+                    _addResult%BJ-0 = add _mulResult%CD-0, const(float, 1) : float
+                    _maxResult%G-0 = max const(float, 0), _addResult%BJ-0 : float
+                    _divResult%C-0 = div const(float, 1), _maxResult%G-0 : float
+                    _LD_distBlend-1 = sub const(float, 1), _divResult%C-0 : float
+                    _LD_invDistBlend-1 = sub const(float, 1), _LD_distBlend-1 : float
+                    _mulResult%CE-0 = mul _LD_textureColour-2, _LD_invDistBlend-1 : float-4
+                    _mulResult%CF-0 = mul _LD_textureDistColour-1, _LD_distBlend-1 : float-4
+                    _LD_blendedTextureColour-1 = add _mulResult%CE-0, _mulResult%CF-0 : float-4
+                    _mulResult%CG-0 = mul _LD_causticColour-9, _LD_causticBlend-2 : float-4
+                    _addResult%CB-0 = add _LD_blendedTextureColour-1, _mulResult%CG-0 : float-4
+                    depthCoordElem%D-0 = extractVE depthCoord, const(int, 2) : float
+                    _mulResult%CH-0 = mul const(float-4, (0.00001, 0.00001, 0.00001, 0.00001)), depthCoordElem%D-0 : float-4
+                    _addResult%CC-0 = add _addResult%CB-0, _mulResult%CH-0 : float-4
+                    depthCoordElem%E-0 = extractVE depthCoord, const(int, 1) : float
+                    _mulResult%CI-0 = mul const(float-4, (0, 0, 0, 0)), depthCoordElem%E-0 : float-4
+                    _LD_colour-1 = add _addResult%CC-0, _mulResult%CI-0 : float-4
+                    _mulResult%CJ-0 = mul _LD_colour-1, _LD_invDepthBlend-1 : float-4
+                    _mulResult%DA-0 = mul _LD_depthColour-1, _LD_depthBlend-2 : float-4
+                    _LD_result-1 = add _mulResult%CJ-0, _mulResult%DA-0 : float-4
+                    depthCoordElem%F-0 = extractVE depthCoord, const(int, 2) : float
+                    _negResult%E-0 = neg depthCoordElem%F-0 : float
+                    _addResult%CF-0 = add _negResult%E-0, aboveSurfaceOffset : float
+                    _stepResult%B-0 = step const(float, 0), _addResult%CF-0 : float
+                    _subResult%BI-0 = sub const(float, 1), aboveSurfaceOnly : float
+                    _mulResult%DB-0 = mul _stepResult%B-0, _subResult%BI-0 : float
+                    _subResult%BJ-0 = sub const(float, 1), _mulResult%DB-0 : float
+                    _LD_result-2 = insertVE _subResult%BJ-0, _LD_result-1, const(int, 3) : float-4
+                    jump block(exit%A) : void
+                end_basic_block
+                basic_block exit%A !! inlets(basic%A)
+                    moveToNonSSA _LD_result-2, result : void
+                    ret : void
+                end_basic_block
+            end_body
+        end_external_function
+    end_functions
+    
+end_module_fragment_program
+
